@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangc.fmmall.dao.ProductMapper">
+  <resultMap id="BaseResultMap" type="com.wangc.fmmall.entity.Product">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="product_id" jdbcType="VARCHAR" property="productId" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="root_category_id" jdbcType="INTEGER" property="rootCategoryId" />
+    <result column="sold_num" jdbcType="INTEGER" property="soldNum" />
+    <result column="product_status" jdbcType="INTEGER" property="productStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <resultMap id="VOResultMap" type="com.wangc.fmmall.entity.ProductVO">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="product_id" jdbcType="VARCHAR" property="productId" />
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="root_category_id" jdbcType="INTEGER" property="rootCategoryId" />
+    <result column="sold_num" jdbcType="INTEGER" property="soldNum" />
+    <result column="product_status" jdbcType="INTEGER" property="productStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <collection property="imgs" select="com.wangc.fmmall.dao.ProductImgMapper.selectImgByProductId" column="product_id"/>
+  </resultMap>
+
+    <resultMap id="ProductVO2" type="com.wangc.fmmall.entity.ProductVO">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="product_id" jdbcType="VARCHAR" property="productId" />
+        <result column="product_name" jdbcType="VARCHAR" property="productName" />
+        <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+        <result column="root_category_id" jdbcType="INTEGER" property="rootCategoryId" />
+        <result column="sold_num" jdbcType="INTEGER" property="soldNum" />
+        <result column="product_status" jdbcType="INTEGER" property="productStatus" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="content" jdbcType="LONGVARCHAR" property="content" />
+        <collection property="skus" column="product_id" select="com.wangc.fmmall.dao.ProductSkuMapper.selectLowerPriceByProductId"/>
+    </resultMap>
+  
+
+  <select id="selectRecommendProds" resultMap="VOResultMap">
+    select product_id,
+            product_name,
+            category_id,
+            root_category_id,
+            sold_num,
+            product_status,
+            content,
+            create_time,
+            update_time
+    from product
+    order by create_time desc limit 0, 3
+
+  </select>
+    <select id="selectTop6ByCate" resultMap="VOResultMap">
+        select product_id,
+            product_name,
+            category_id,
+            root_category_id,
+            sold_num,
+            product_status,
+            content,
+            create_time,
+            update_time
+            from product
+            where root_category_id = #{cid}
+            order by sold_num desc limit 0, 6
+    </select>
+    <select id="selectProByCateId" resultMap="ProductVO2">
+        select product_id,
+            product_name,
+            category_id,
+            root_category_id,
+            sold_num,
+            product_status,
+            content,
+            create_time,
+            update_time
+            from product where category_id = #{cid} limit #{start}, #{limit}
+
+    </select>
+
+    <select id="selectBrandByCateId" resultSets="java.util.List" resultType="String">
+        select DISTINCT brand
+        from product_params
+        where product_id in (select product_id
+                            from product
+                            where category_id = #{cid})
+    </select>
+    <select id="selectProByKeyWord" resultMap="ProductVO2">
+        select product_id,
+            product_name,
+            category_id,
+            root_category_id,
+            sold_num,
+            product_status,
+            content,
+            create_time,
+            update_time
+            from product
+            where product_name like #{kwd}
+            limit #{start}, #{limit}
+    </select>
+    <select id="selectBrandByKeyword" resultSets="java.util.List" resultType="String">
+        select DISTINCT brand
+        from product_params
+        where product_id in (select product_id
+                            from product
+                            where product_name like #{keyword})
+    </select>
+    <select id="selectProducts" resultMap="ProductVO2">
+        select product_id,
+            product_name,
+            category_id,
+            root_category_id,
+            sold_num,
+            product_status,
+            content,
+            create_time,
+            update_time
+            from product
+    </select>
+</mapper>
